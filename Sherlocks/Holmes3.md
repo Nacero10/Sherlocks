@@ -9,7 +9,7 @@
 - When did the malicious RMM session end?
 	*2025-08-20 10:14:27*
 
-Parisng the disk image using Cape with the module EZPasrer
+Parsing the disk image using Cape with the module `EZPasrer`
 
 ![[Pasted image 20260521020234.png]]
 
@@ -20,16 +20,44 @@ So we will hunt first the attacker logon event to correlate time because the las
 We search for remote successful logins of the  user Werni,  from the machine 10.129.242.110
 
 `To Detail`
-We notice that the authentification package was NTLM `Weak protocol`
+
 
 ![[Pasted image 20260521033427.png]]
 
+We notice that the authentification package was NTLM `Weak protocol` so teh attacker use tools that generate NTLM 
+
+First Login of the user Werni on `2025-08-15 21:24:30`
+Last Login was on  `2025-08-15 22:50`
+
+searching FOR 4688 event id logs around the time of 2025-08-24 22:50
+We find a proess called `WmiPrvSE.exe` ; some web searches explaint that WMi can cause CPU spikes.
+
+Filtering for Parent Process = `WmiPrvSE.exe`
+We find multiple suspicious commands that we will analyze meticulously
 
 
-searching FOR 4688 event id logs and the user werner 
+Analysing the cmd.exe process spawned under `WmiPrvSE.exe`
+
+We isolate persistence commands
+
+
+around 2025-08-24 23:00:15  to  2025-08-24 23:08:15
+
+C:\Windows\System32\cmd.exe cmd.exe /Q /c cmd /C ""echo 10.129.242.110 NapoleonsBlackPearl.htb &gt;&gt; C:\Windows\System32\drivers\etc\hosts"" 
+1&gt; \\127.0.0.1\ADMIN$\__1756075857.955773 2&gt;&amp;1",
 
 
 
+"C:\Windows\System32\cmd.exe cmd.exe /Q /c schtasks /create /tn ""SysHelper Update"" /tr ""powershell -ExecutionPolicy Bypass -WindowStyle Hidden 
+-File C:\Users\Werni\Appdata\Local\JM.ps1"" /sc minute /mo 2 /ru SYSTEM /f 1&gt; \\127.0.0.1\ADMIN$\__1756076432.886685 2&gt;&amp;1"
+
+
+C:\Windows\System32\cmd.exe cmd.exe /Q /c netsh advfirewall set allprofiles state off 1&gt; \\127.0.0.1\ADMIN$\__1756076432.886685 2&gt;&amp;1
+
+
+
+C:\Windows\System32\cmd.exe cmd.exe /Q /c reg add ""HKLM\SYSTEM\CurrentControlSet\Services\WinHttpAutoProxySvc"" 
+v Start /t REG_DWORD /d 3 /f 1&gt; \\127.0.0.1\ADMIN$\__1756076432.886685 2&gt;&amp;1",
 
 
 
