@@ -26,8 +26,12 @@ We search for remote successful logins of the  user Werni,  from the machine 10.
 
 We notice that the authentification package was NTLM `Weak protocol` so teh attacker use tools that generate NTLM 
 
+
 First Login of the user Werni on `2025-08-15 21:24:30`
+
 Last Login was on  `2025-08-15 22:50`
+
+
 
 searching FOR 4688 event id logs around the time of 2025-08-24 22:50
 We find a proess called `WmiPrvSE.exe` ; some web searches explaint that WMi can cause CPU spikes.
@@ -60,9 +64,74 @@ C:\Windows\System32\cmd.exe cmd.exe /Q /c reg add ""HKLM\SYSTEM\CurrentControlSe
 v Start /t REG_DWORD /d 3 /f 1&gt; \\127.0.0.1\ADMIN$\__1756076432.886685 2&gt;&amp;1",
 
 
+PS C:\Users\PC\Downloads\Sherlocks\Holmes 3\EnduringEcho\C> Get-ChildItem -Recurse -Filter "JM.*"
+
+
+    Répertoire : C:\Users\PC\Downloads\Sherlocks\Holmes3\EnduringEcho\C\Users\Werni\AppData\Local
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        21/05/2026     01:15           1225 JM.ps1
 
 
 
+The Pwsh script explains that the password is in the format Watson_YYYYMMDDHHMMSS  
+the creation time of the user svc_netupd is 2025-08-15 23:05:09
+
+
+
+![[Pasted image 20260603022102.png]]
+(config) PS C:\Users\PC\Downloads\Sherlocks\Holmes 3\EnduringEcho\C\Windows\System32\config> pypykatz registry --sam SAM --security SECURITY --software SOFTWARE SYSTEM
+
+============== SYSTEM hive secrets ==============
+CurrentControlSet: ControlSet001
+Boot Key: 3a2999e73d3448fb21e14bbd9a9480d1
+============== SAM hive secrets ==============
+HBoot Key: 9d15e5b180f98af788be078107ba1e0c10101010101010101010101010101010
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:cf3a5525ee9414229e66279623ed5c58:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+WDAGUtilityAccount:504:aad3b435b51404eeaad3b435b51404ee:02679f6b636628c0822c7f9836b84282:::
+Werni:1002:aad3b435b51404eeaad3b435b51404ee:0fa16c6a581bf468c6a83510926b8358:::
+svc_netupd:1003:aad3b435b51404eeaad3b435b51404ee:532303a6fa70b02c905f950b60d7da51:::
+============== SECURITY hive secrets ==============
+Iteration count: 10240
+Secrets structure format : VISTA
+LSA Key: bbc4b1a4ec15b5f7eb3fe7bd64676e158f7490e7d8e137f4c1b7c771f5d4bede
+NK$LM Key: 40000000000000000000000000000000ef3db78f87d755b7ef837202ba8573444a1c81e503da37c2d95460893622d175c7811ea1f60cd9ec65368e58bca57c1ffe1d9c4586f08223fd4760fbb221fcb8ec13e4b191bb4ee8617411894987122c
+=== LSASecret CACHEDDEFAULTPASSWORD ===
+
+History: True
+Secret:
+00000000:  57 00 65 00 6c 00 63 00  6f 00 6d 00 65 00 31 00   |W.e.l.c.o.m.e.1.|
+=== LSA DPAPI secret ===
+History: False
+Machine key (hex): b5eb284702c6192c55d1a64faaac43c2a28ae137
+User key(hex): b371dc89b1cdcaf5b6083d5e087a2c2af1d65b19
+=== LSA DPAPI secret ===
+History: True
+Machine key (hex): ed8ba5aedd2b2f15f8dfab4e804da939f7f127b8
+User key(hex): a8e080452d6e4fb5afb13c69f061c5cf86a805c6
+=== LSASecret NL$KM ===
+
+History: False
+Secret:
+00000000:  ef 3d b7 8f 87 d7 55 b7  ef 83 72 02 ba 85 73 44   |.=....U...r...sD|
+00000010:  4a 1c 81 e5 03 da 37 c2  d9 54 60 89 36 22 d1 75   |J.....7..T`.6".u|
+00000020:  c7 81 1e a1 f6 0c d9 ec  65 36 8e 58 bc a5 7c 1f   |........e6.X..|.|
+00000030:  fe 1d 9c 45 86 f0 82 23  fd 47 60 fb b2 21 fc b8   |...E...#.G`..!..|
+=== LSASecret NL$KM ===
+
+History: True
+Secret:
+00000000:  ef 3d b7 8f 87 d7 55 b7  ef 83 72 02 ba 85 73 44   |.=....U...r...sD|
+00000010:  4a 1c 81 e5 03 da 37 c2  d9 54 60 89 36 22 d1 75   |J.....7..T`.6".u|
+00000020:  c7 81 1e a1 f6 0c d9 ec  65 36 8e 58 bc a5 7c 1f   |........e6.X..|.|
+00000030:  fe 1d 9c 45 86 f0 82 23  fd 47 60 fb b2 21 fc b8   |...E...#.G`..!..|
+============== SOFTWARE hive secrets ==============
+default_logon_user: None
+default_logon_domain: None
+default_logon_password: None
 
 ## Timeline Events
 
