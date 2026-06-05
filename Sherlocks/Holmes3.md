@@ -76,62 +76,114 @@ Mode                 LastWriteTime         Length Name
 
 
 The Pwsh script explains that the password is in the format Watson_YYYYMMDDHHMMSS  
-the creation time of the user svc_netupd is 2025-08-15 23:05:09
+the creation time of the user svc_netupd is 2025-08-15 23:05:09 doesnt match the password. 
+We can find the claire text password decrypting the ntlm hash derived from the password Watson_20250824hhmmss
 
 
 
 ![[Pasted image 20260603022102.png]]
+
+*impacket toolkit*
+![[Pasted image 20260605035807.png]]
+
+
+*OR*
+
+
+*python library to dump hashes*
+
+``` 
 (config) PS C:\Users\PC\Downloads\Sherlocks\Holmes 3\EnduringEcho\C\Windows\System32\config> pypykatz registry --sam SAM --security SECURITY --software SOFTWARE SYSTEM
+```
 
-============== SYSTEM hive secrets ==============
-CurrentControlSet: ControlSet001
-Boot Key: 3a2999e73d3448fb21e14bbd9a9480d1
-============== SAM hive secrets ==============
-HBoot Key: 9d15e5b180f98af788be078107ba1e0c10101010101010101010101010101010
-Administrator:500:aad3b435b51404eeaad3b435b51404ee:cf3a5525ee9414229e66279623ed5c58:::
-Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-WDAGUtilityAccount:504:aad3b435b51404eeaad3b435b51404ee:02679f6b636628c0822c7f9836b84282:::
-Werni:1002:aad3b435b51404eeaad3b435b51404ee:0fa16c6a581bf468c6a83510926b8358:::
-svc_netupd:1003:aad3b435b51404eeaad3b435b51404ee:532303a6fa70b02c905f950b60d7da51:::
-============== SECURITY hive secrets ==============
-Iteration count: 10240
-Secrets structure format : VISTA
-LSA Key: bbc4b1a4ec15b5f7eb3fe7bd64676e158f7490e7d8e137f4c1b7c771f5d4bede
-NK$LM Key: 40000000000000000000000000000000ef3db78f87d755b7ef837202ba8573444a1c81e503da37c2d95460893622d175c7811ea1f60cd9ec65368e58bca57c1ffe1d9c4586f08223fd4760fbb221fcb8ec13e4b191bb4ee8617411894987122c
-=== LSASecret CACHEDDEFAULTPASSWORD ===
+We use then use 20250824 (the Year,Month and Day) concatenated with ?d?d?d?d?d? . The tells hashcat to use only digits when brute force the other characters. ?d
 
-History: True
-Secret:
-00000000:  57 00 65 00 6c 00 63 00  6f 00 6d 00 65 00 31 00   |W.e.l.c.o.m.e.1.|
-=== LSA DPAPI secret ===
-History: False
-Machine key (hex): b5eb284702c6192c55d1a64faaac43c2a28ae137
-User key(hex): b371dc89b1cdcaf5b6083d5e087a2c2af1d65b19
-=== LSA DPAPI secret ===
-History: True
-Machine key (hex): ed8ba5aedd2b2f15f8dfab4e804da939f7f127b8
-User key(hex): a8e080452d6e4fb5afb13c69f061c5cf86a805c6
-=== LSASecret NL$KM ===
+![[Pasted image 20260605040023.png]]
 
-History: False
-Secret:
-00000000:  ef 3d b7 8f 87 d7 55 b7  ef 83 72 02 ba 85 73 44   |.=....U...r...sD|
-00000010:  4a 1c 81 e5 03 da 37 c2  d9 54 60 89 36 22 d1 75   |J.....7..T`.6".u|
-00000020:  c7 81 1e a1 f6 0c d9 ec  65 36 8e 58 bc a5 7c 1f   |........e6.X..|.|
-00000030:  fe 1d 9c 45 86 f0 82 23  fd 47 60 fb b2 21 fc b8   |...E...#.G`..!..|
-=== LSASecret NL$KM ===
 
-History: True
-Secret:
-00000000:  ef 3d b7 8f 87 d7 55 b7  ef 83 72 02 ba 85 73 44   |.=....U...r...sD|
-00000010:  4a 1c 81 e5 03 da 37 c2  d9 54 60 89 36 22 d1 75   |J.....7..T`.6".u|
-00000020:  c7 81 1e a1 f6 0c d9 ec  65 36 8e 58 bc a5 7c 1f   |........e6.X..|.|
-00000030:  fe 1d 9c 45 86 f0 82 23  fd 47 60 fb b2 21 fc b8   |...E...#.G`..!..|
-============== SOFTWARE hive secrets ==============
-default_logon_user: None
-default_logon_domain: None
-default_logon_password: None
+
+
+> [!Important] Note
+Looking back at the original times we see the year, month, day, minutes and seconds were the same. However there is a 7 hour difference between the 2 times. The observed 7-hour difference between the log time and the script execution time can be attributed to daylight saving time (DST). The system is set to the Pacific Time Zone (UTC-08:00), which observes DST. During DST, the time zone shifts to UTC-07:00. In this case, the script was executed during a period when DST was in effect, resulting in a 7-hour difference from the standard time
+
+
+C:\Users\PC\Downloads\Sherlocks\Holmes 3\EnduringEcho\C\Users\Werni\AppData\Roaming
+
+
+
+``` 
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f
+``` 
+This command ==disables remote User Account Control (UAC) filtering for local accounts on a Windows machine==. It allows any user logging in over the network (e.g., via WMI or PsExec) with local administrator credentials to access resources with full administrative privileges
+
+
+
+
+
+C:\Users\PC\Downloads\Sherlocks\Holmes 3\EnduringEcho\C\Users\Administrator\AppData\Roaming
+
+
+``` 
+ipconfig
+powershell New-NetIPAddress -InterfaceAlias "Ethernet0" -IPAddress 172.18.6.3 -PrefixLength 24
+ipconfig.exe
+powershell New-NetIPAddress -InterfaceAlias "Ethernet0" -IPAddress 10.129.233.246 -PrefixLength 24
+ipconfig
+ncpa.cpl
+ipconfig
+ping 1.1.1.1
+cd C:\Users\
+ls
+net user Werni Quantum1! /add
+ls
+net localgroup administrator Werni /add
+net localgroup Administrators Werni /add
+clear
+wmic computersystem where name="%COMPUTERNAME%" call rename name="Heisen-9-WS-6"
+ls
+cd ..
+ls
+cd .\Users\
+ls
+net users
+Rename-Conputer -NewName "Heisen-9-WS-6" -Force
+Rename-Computer -NewName "Heisen-9-WS-6" -Force
+net users
+ls
+net user felamos /delete
+cd ..
+ls
+net users
+cat .\Werni\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f
+Enable-NetFirewallRule -DisplayGroup "Windows Management Instrumentation (WMI)"
+Enable-NetFirewallRule -DisplayGroup "Remote Event Log Management"
+Enable-NetFirewallRule -DisplayGroup "Remote Service Management"
+auditpol /set /subcategory:"Process Creation" /success:enable
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f
+Set-MpPreference -DisableRealtimeMonitoring $true
+Get-MpComputerStatus | Select-Object AMRunningMode, RealTimeProtectionEnabled
+
+
+``` 
+
+the administartor enable capturing commandline in winevent logs 
+
+``` 
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f
+``` 
+
+
+netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=9999 connectaddress=192.168.1.101 connectport=22
+
+
+
+
+
+
+
+
+
 
 ## Timeline Events
 
